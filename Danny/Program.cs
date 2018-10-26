@@ -54,6 +54,15 @@ namespace MyBot
                 }
                     
                 loginFound = false;
+            } else if(message.Content == "!ching"){
+                if(System.Windows.Forms.SystemInformation.TerminalServerSession)
+                {
+                    await message.Channel.SendMessageAsync("Chong. The server is unlocked!");
+                }
+                else
+                {
+                    await message.Channel.SendMessageAsync("Chong. The server is locked!");
+                }
             }
         }
 
