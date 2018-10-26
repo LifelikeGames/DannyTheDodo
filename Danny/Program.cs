@@ -9,7 +9,7 @@ namespace MyBot
 {
     public class Program
     {
-        private string privToken = "NTA1MzczMzY3NTY2NzI5MjI2.DrSp4w.sA3laQqBj0PMmrEMJnIhYc9CQ5E";
+        private string privToken = "";
         private bool loginFound = false;
         public static void Main(string[] args)
             => new Program().MainAsync().GetAwaiter().GetResult();
