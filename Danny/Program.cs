@@ -47,10 +47,10 @@ namespace MyBot
             {
                 if (loginFound)
                 {
-                    await message.Channel.SendMessageAsync("Someone is logged in!");
+                    await message.Channel.SendMessageAsync("The server is unlocked!");
                 } else
                 {
-                    await message.Channel.SendMessageAsync("No one seems to be logged in!");
+                    await message.Channel.SendMessageAsync("The server is locked!");
                 }
                     
                 loginFound = false;
@@ -67,13 +67,13 @@ namespace MyBot
                 if (e.Reason == SessionSwitchReason.SessionLock)
                 {
                     Console.WriteLine("Logged out");
-                    File.AppendAllText(@"C:\temp\login." + DateTime.Now.ToString("ddMMyyyy") + ".log", "User is now logged out: " + DateTime.Now + Environment.NewLine);
+                    File.AppendAllText(@"C:\temp\login." + DateTime.Now.ToString("ddMMyyyy") + ".log", "User is now locked: " + DateTime.Now + Environment.NewLine);
                     loginFound = false;
                 }
                 else if (e.Reason == SessionSwitchReason.SessionUnlock)
                 {
                     Console.WriteLine("Logged in");
-                    File.AppendAllText(@"C:\temp\login." + DateTime.Now.ToString("ddMMyyyy") + ".log", "User is now logged in: " + DateTime.Now + Environment.NewLine);
+                    File.AppendAllText(@"C:\temp\login." + DateTime.Now.ToString("ddMMyyyy") + ".log", "User is now unlocked: " + DateTime.Now + Environment.NewLine);
                     loginFound = true;
                 }
             }
