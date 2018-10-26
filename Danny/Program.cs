@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using Microsoft.Win32;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -8,7 +9,7 @@ namespace MyBot
 {
     public class Program
     {
-        private string privToken = "";
+        private string privToken = "NTA1MzczMzY3NTY2NzI5MjI2.DrSp4w.sA3laQqBj0PMmrEMJnIhYc9CQ5E";
         private bool loginFound = false;
         public static void Main(string[] args)
             => new Program().MainAsync().GetAwaiter().GetResult();
@@ -27,6 +28,7 @@ namespace MyBot
             string token = privToken; // Remember to keep this private!
             await client.LoginAsync(TokenType.Bot, token);
             await client.StartAsync();
+            await MonitorLogins();
 
             // Block this task until the program is closed.
             await Task.Delay(-1);
@@ -35,7 +37,7 @@ namespace MyBot
         private Task Log(LogMessage msg)
         {
             Console.WriteLine(msg.ToString());
-            File.AppendAllText(@"C:\temp\BotLogging."+ DateTime.Now.ToString("DDMMYYYY") +".log",msg.ToString());
+            File.AppendAllText(@"C:\temp\BotLogging."+ DateTime.Now.ToString("ddMMyyyy") +".log",msg.ToString() + Environment.NewLine);
             return Task.CompletedTask;
         }
 
@@ -43,7 +45,6 @@ namespace MyBot
         {
             if (message.Content == "!ping")
             {
-                await CheckLogin();
                 if (loginFound)
                 {
                     await message.Channel.SendMessageAsync("Someone is logged in!");
@@ -56,27 +57,26 @@ namespace MyBot
             }
         }
 
-        private Task CheckLogin()
+        private Task MonitorLogins()
         {
-            System.Diagnostics.Process process = new System.Diagnostics.Process();
-            System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
-            startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-            startInfo.FileName = "cmd.exe";
-            startInfo.Arguments = "/C qwinsta | FIND /i \"active\"";
-            process.StartInfo = startInfo;
-            startInfo.RedirectStandardOutput = true;
-            startInfo.UseShellExecute = false;
-            process.Start();
-            StreamReader sr = process.StandardOutput;
+            Console.WriteLine("Started monitoring logins");
+            Microsoft.Win32.SystemEvents.SessionSwitch += new Microsoft.Win32.SessionSwitchEventHandler(SystemEvents_SessionSwitch);
 
-            string result = sr.ReadToEnd();
-            Console.WriteLine(result);
-            if (result.ToLower().Contains("active"))
+            void SystemEvents_SessionSwitch(object sender, Microsoft.Win32.SessionSwitchEventArgs e)
             {
-                loginFound = true;
-                
+                if (e.Reason == SessionSwitchReason.SessionLock)
+                {
+                    Console.WriteLine("Logged out");
+                    File.AppendAllText(@"C:\temp\login." + DateTime.Now.ToString("ddMMyyyy") + ".log", "User is now logged out: " + DateTime.Now + Environment.NewLine);
+                    loginFound = false;
+                }
+                else if (e.Reason == SessionSwitchReason.SessionUnlock)
+                {
+                    Console.WriteLine("Logged in");
+                    File.AppendAllText(@"C:\temp\login." + DateTime.Now.ToString("ddMMyyyy") + ".log", "User is now logged in: " + DateTime.Now + Environment.NewLine);
+                    loginFound = true;
+                }
             }
-            Console.WriteLine(loginFound);
 
             return Task.CompletedTask;
         }
